@@ -1,0 +1,2 @@
+1. In Makefile, when build target with some library, put the library AFTER the
+   module you are compiling, otherwise you get error "undefined reference to"

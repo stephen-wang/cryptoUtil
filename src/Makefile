@@ -1,17 +1,15 @@
-CC=gcc
-CFLAGS= -Wall -g -fPIC
-RM=rm
-CUR_DIR=$(shell pwd)
+C = gcc
+CFLAGS ?= -Wall -g
+CRYPTOUTIL_DIR ?= $(shell pwd)/..
+RM ?= rm
 
-.PHONY: all cleanup
-all: libcaesar.so caesar
+.PHONY: all clean
+all: libcaesar.so
 
-libcaesar.so: caesar.c
-	${CC} ${CFLAGS} -shared -I${CUR_DIR}/../inc $< -o ${CUR_DIR}/../build/$@
+libcaesar.so: caesar.c clean
+	rm -rf ${CRYPTOUTIL_DIR}/build/*
+	${CC} ${CFLAGS} -fPIC -shared -I${CRYPTOUTIL_DIR}/inc $< -o ${CRYPTOUTIL_DIR}/build/$@
 
-caesar: caesar.c
-	${CC} -g -I${CUR_DIR}/../inc $< -o $@
-
-cleanup: libcaesar.so 
-	rm -rf *.o
+clean:
+	${RM} -rf *.o
 

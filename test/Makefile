@@ -1,21 +1,20 @@
 CC=gcc
-RM=rm
-MKDIR=mkdir 
-CUR_DIR=$(shell pwd)
-LD_LIBRARY_PATH=${CUR_DIR}/../build
+CFLAGS?=-Wall -g
+CRYPTOUTIL_DIR?=$(shell pwd)/..
+LD_LIBRARY_PATH=${CRYPTOUTIL_DIR}/build
 export LD_LIBRARY_PATH
+RM?=rm
 
-.PHONY: all cleanup runTest
-
+.PHONY: all clean runTest
 all: testCaesar runTest
 
-testCaesar: testCaesar.c
-	${CC} ${FLAGS} -I${CUR_DIR}/../inc -L${CUR_DIR}/../build -lcaesar $< -o $@
+testCaesar: testCaesar.c clean
+	${CC} ${CFLAGS} -I${CRYPTOUTIL_DIR}/inc $< -L${CRYPTOUTIL_DIR}/build -lcaesar -o $@
 
-cleanup:
+clean:
 	${RM} -f *.o testCaesar 
-	${MKDIR} bin
 
 runTest: testCaesar
-	@echo "Run tests ..."
+	@echo  "\n*** Run tests ***"
 	@./testCaesar
+	@echo  "*** All tests passed ***\n"

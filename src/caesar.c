@@ -1,9 +1,63 @@
+/* Copyright (c) 2018, wenzhi wang */
+
 #include "stdio.h"
-#include "caesar.h"
 #include "string.h"
+#include "caesar.h"
+
 
 /*
- * Encrypt plaintext by right shifting each alphabetic character 'key' bits.
+ *  Shift English character 'ch' by 'count' positions and return the new
+ *  character, e.g.
+ *      ch='a', count=1, return 'b'
+ *      ch='b', count=2, return 'd'
+ *      ch='Y', count=3, return 'B'
+ *      ch='a', count=-1, return 'z'
+ *      ch='a', count=-2, return 'y'
+ */
+
+
+char
+CaesarShift(char ch, int shift)
+{
+    char result = ch;
+    char base = 0;
+    //int count = shift;
+
+    if (ch >= 'a' && ch <= 'z') {
+        base = 'a';
+    } else if (ch >= 'A' && ch <= 'Z') {
+        base = 'A';
+    }
+
+    if (base != 0) {
+       if (shift < 0) {  //left shift
+           shift *= -1;
+           while (shift > 0) {
+               result--;    
+               shift--;
+               if (result < base) {
+                  result = base + 25;
+               }
+           }
+       } else {          // right shift
+           while (shift > 0) {
+               result++;    
+               shift--;
+               if (result > base + 25) {
+                  result = base;
+               }
+           }
+       }
+    }
+
+    //printf("***DEBUG*** %c shift %d --> %c\n", ch, count, result);
+
+    return result;
+}
+
+
+/*
+ * Encrypt plaintext by right shifting each English character 'key' positions.
  */
 CryptoUtil_Error_Code
 CaesarEncrypt(const char *pt, uint64 ptLen, uint8 key, char *ct, uint64 ctLen)
@@ -13,56 +67,27 @@ CaesarEncrypt(const char *pt, uint64 ptLen, uint8 key, char *ct, uint64 ctLen)
     }
 
     for (int i = 0; i < ptLen; i++) { 
-
-        ct[i] = pt[i];
-
-        if (pt[i] >= 'a' && pt[i] <= 'z') {
-            ct[i] = 'a' + (pt[i] - 'a' + key) % 26;
-        } else if (pt[i] >= 'A' && pt[i] <= 'Z') {
-            ct[i] = 'A' + (pt[i] - 'A' + key) % 26;
-        }
+        ct[i] = CaesarShift(pt[i], key);
     }
 
     return CryptoUtil_Error_Success;
 }
 
-int main(void)
+
+/*
+ *  Decrypt ciphertext by left shifting each English character 'key' positions.
+ */
+CryptoUtil_Error_Code
+CaesarDecrypt(const char *ct, uint64 ctLen, uint8 key, char *pt, uint64 ptLen)
 {
-    char *pt = NULL;
-    char *expCt = NULL; 
-    int len;
-    char buf[256];
-    int key;
-    CryptoUtil_Error_Code rc;
-
-    /*
-     * Case 1: Encrypt text only containing lower alphatetic characters.
-     */
-    pt = "abcdewxz";
-    expCt = "defghzac";
-    key = 3; 
-
-    len = strlen(pt);
-    rc = CaesarEncrypt(pt, len, key, buf, len);
-    if (rc != CryptoUtil_Error_Success) {
-        printf("Caesar encryption failed: %d (%s)\n",\
-               rc, cryptoUtilErrorDesc(rc));
-        goto Error;
+    if (pt == NULL || ct == NULL || ptLen <=0 || ptLen != ctLen) {
+        return CryptoUtil_Error_InvalidParam;
     }
 
-    len = strlen(expCt);
-    if (strncmp(buf, expCt, len) != 0) {
-        printf("Caesar encryption(PT<%s>/key<%d>) failed, expect :<%s>, actual "
-               "CT:<%s>\n", pt, key, expCt, buf);
-        rc = CryptoUtil_Error_Failure;
-        goto Error;
+    for (int i = 0; i < ptLen; i++) { 
+
+        pt[i] = CaesarShift(ct[i], -key);
     }
 
-    printf("Case testCaesarEncrypt() passed\n");
-    return rc;
-
-Error:
-    printf("Case testCaesarEncrypt() failed\n");
-    return rc;
- 
+    return CryptoUtil_Error_Success;
 }
