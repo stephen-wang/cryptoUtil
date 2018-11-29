@@ -15,7 +15,6 @@
  *      ch='a', count=-2, return 'y'
  */
 
-
 char
 CaesarShift(char ch, int shift)
 {
@@ -59,6 +58,7 @@ CaesarShift(char ch, int shift)
 /*
  * Encrypt plaintext by right shifting each English character 'key' positions.
  */
+
 CryptoUtil_Error_Code
 CaesarEncrypt(const char *pt, uint64 ptLen, uint8 key, char *ct, uint64 ctLen)
 {
@@ -77,6 +77,7 @@ CaesarEncrypt(const char *pt, uint64 ptLen, uint8 key, char *ct, uint64 ctLen)
 /*
  *  Decrypt ciphertext by left shifting each English character 'key' positions.
  */
+
 CryptoUtil_Error_Code
 CaesarDecrypt(const char *ct, uint64 ctLen, uint8 key, char *pt, uint64 ptLen)
 {

@@ -68,7 +68,6 @@ testEncryption(const char *pt, int ptLen, int key, const char *expCt)
 }
 
 
-
 CryptoUtil_Error_Code
 testDecryption(const char *ct, int ctLen, int key, const char *expPt)
 {

@@ -15,13 +15,11 @@ enum CryptoUtil_Error_Code {
 #undef def
 };
 
-
 #define def(code, desc, val) desc,
 const char *CryptoUtil_Error_Strs[] = { CryptoUtil_Error_Defs };
 #define cryptoUtilErrorDesc(code) \
     CryptoUtil_Error_Strs[code - CryptoUtil_Error_Success]
 #undef def
-      
 
 
 #endif
