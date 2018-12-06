@@ -1,3 +1,3 @@
 # cryptoUtil
-#     Currently, caesar and vigenere ciphser are supported.
+#     Currently, caesar and vigenere cipher are supported.
 #
