@@ -4,11 +4,11 @@ CRYPTOUTIL_DIR ?= $(shell pwd)/..
 RM ?= rm
 
 .PHONY: all clean
-all: libcaesar.so
+all: libcryptoUtil.so
 
-libcaesar.so: caesar.c clean
+libcryptoUtil.so: caesar.c vigenere.c utils.c
 	rm -rf ${CRYPTOUTIL_DIR}/build/*
-	${CC} ${CFLAGS} -fPIC -shared -I${CRYPTOUTIL_DIR}/inc $< -o ${CRYPTOUTIL_DIR}/build/$@
+	${CC} ${CFLAGS} -fPIC -shared -I${CRYPTOUTIL_DIR}/inc $^ -o ${CRYPTOUTIL_DIR}/build/$@
 
 clean:
 	${RM} -rf *.o

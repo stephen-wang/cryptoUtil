@@ -7,10 +7,9 @@
 #include "cryptoUtil_types.h"
 
 
-char CaesarShift(char ch, int count);
-CryptoUtil_Error_Code CaesarEncrypt(const char *pt, uint64 ptLen, uint8 key, \
+CryptoUtil_ErrorCode Caesar_Encrypt(const char *pt, uint64 ptLen, uint8 key, \
                                     char *ct, uint64 ctLen);
-CryptoUtil_Error_Code CaesarDecrypt(const char *ct, uint64 ctLen, uint8 key, \
+CryptoUtil_ErrorCode Caesar_Decrypt(const char *ct, uint64 ctLen, uint8 key, \
                                     char *pt, uint64 ptLen);
 
 #endif

@@ -6,15 +6,23 @@ export LD_LIBRARY_PATH
 RM?=rm
 
 .PHONY: all clean runTest
-all: testCaesar runTest
+all: testUtils testCaesar testVigenere runTest
 
-testCaesar: testCaesar.c clean
-	${CC} ${CFLAGS} -I${CRYPTOUTIL_DIR}/inc $< -L${CRYPTOUTIL_DIR}/build -lcaesar -o $@
+testUtils: testUtils.c ${CRYPTOUTIL_DIR}/src/utils.c
+	${CC} ${CFLAGS} -I${CRYPTOUTIL_DIR}/inc $^ -o $@
+
+testCaesar: testCaesar.c
+	${CC} ${CFLAGS} -I${CRYPTOUTIL_DIR}/inc $< -L${CRYPTOUTIL_DIR}/build -lcryptoUtil -o $@
+
+testVigenere: testVigenere.c
+	${CC} ${CFLAGS} -I${CRYPTOUTIL_DIR}/inc $< -L${CRYPTOUTIL_DIR}/build -lcryptoUtil -o $@
 
 clean:
-	${RM} -f *.o testCaesar 
+	${RM} -f *.o testUtils testCaesar testVigenere
 
 runTest: testCaesar
 	@echo  "\n*** Run tests ***"
+	@./testUtils
 	@./testCaesar
+	@./testVigenere
 	@echo  "*** All tests passed ***\n"

@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "caesar.h"
+#include "vigenere.h"
 #include "cryptoUtil_types.h"
 
 
@@ -11,7 +11,7 @@ CryptoUtil_ErrorCode
 CompareStr(const char *actStr, const char *expStr, int len)
 {
     if (strncmp(actStr, expStr, len) != 0) {
-        printf("Expect: %s, actual: %s\n", expStr, actStr);
+        printf("  Expect: %s, actual: %s\n", expStr, actStr);
         return CryptoUtil_Error_Failure;
     }
 
@@ -20,13 +20,13 @@ CompareStr(const char *actStr, const char *expStr, int len)
 
 
 CryptoUtil_ErrorCode
-testEncryption(const char *pt, int ptLen, int key, const char *expCt)
+testEncryption(const char *pt, int ptLen, char *key, const char *expCt)
 {
     CryptoUtil_ErrorCode rc=0;
     char buf[256];
 
-    printf("  TestEncryption: PT <%s>, Key <%d>\n", pt, key);
-    rc = Caesar_Encrypt(pt, ptLen, key, buf, ptLen);
+    printf("  TestEncryption: PT <%s>, Key <%s>\n", pt, key);
+    rc = Vigenere_Encrypt(pt, ptLen, key, strlen(key), buf, ptLen);
     if (rc != CryptoUtil_Error_Success) {
         printf("  **Error** Encryption: %d (%s)\n", rc, CryptoUtil_ErrorDesc(rc));
         return rc;
@@ -40,13 +40,13 @@ testEncryption(const char *pt, int ptLen, int key, const char *expCt)
 
 
 CryptoUtil_ErrorCode
-testDecryption(const char *ct, int ctLen, int key, const char *expPt)
+testDecryption(const char *ct, int ctLen, char *key, const char *expPt)
 {
     CryptoUtil_ErrorCode rc=0;
     char buf[256];
 
-    printf("  TestDecryption: CT <%s>, Key <%d>\n", ct, key);
-    rc = Caesar_Decrypt(ct, ctLen, key, buf, ctLen);
+    printf("  TestDecryption: CT <%s>, Key <%s>\n", ct, key);
+    rc = Vigenere_Decrypt(ct, ctLen, key, strlen(key), buf, ctLen);
     if (rc != CryptoUtil_Error_Success) {
         printf("  **Error** Decryption: %d (%s)\n", rc, CryptoUtil_ErrorDesc(rc));
         return rc;
@@ -59,23 +59,24 @@ testDecryption(const char *ct, int ctLen, int key, const char *expPt)
 
 
 CryptoUtil_ErrorCode
-testCaesarCipher()
+testVigenereCipher()
 {
     char *pt = NULL;
     char *ct = NULL;
     char *expCt = NULL; 
     char *expPt = NULL; 
+    char *key = NULL;
     int len;
-    int key;
     CryptoUtil_ErrorCode rc;
 
+    printf("Case testVigenereCipher Starts\n");
     /*
      * Case 1: Encrypt/Decrypt text only containing lower alphatetic characters.
      */
-    pt = "abcdewxz";
+    pt = "abcd";
     len = strlen(pt);
-    expCt = "defghzac";
-    key = 3; 
+    expCt = "bcee";
+    key = "aab";
 
     if (testEncryption(pt, len, key, expCt) != CryptoUtil_Error_Success) {
        goto Error;   
@@ -90,10 +91,10 @@ testCaesarCipher()
     /*
      * Case 2: Encrypt text only containing upper alphatetic characters.
      */
-    pt = "ABCXYZ";
+    pt = "abc12";
     len = strlen(ct);
-    expCt= "EFGBCD";
-    key = 4; 
+    expCt= "ceg12";
+    key = "bcdee";
 
     if ((rc=testEncryption(pt, len, key, expCt)) != CryptoUtil_Error_Success) {
        goto Error;   
@@ -105,29 +106,11 @@ testCaesarCipher()
        goto Error;   
     }
 
-    /*
-     * Case 3: Encrypt/Decrypt text containing both digits and alphatbeic characters.
-     */
-    pt = "78ABCXYZ01";
-    len = strlen(pt);
-    expCt = "78EFGBCD01";
-    key = 4; 
-
-    if ((rc=testEncryption(pt, len, key, expCt)) != CryptoUtil_Error_Success) {
-       goto Error;   
-    }
-
-    ct = expCt;
-    expPt = pt;
-    if ((rc=testDecryption(ct, len, key, expPt)) != CryptoUtil_Error_Success) {
-       goto Error;   
-    }
-
-    printf("Case testCaesarCipher() passed\n");
+    printf("Case testVigenereCipher passed\n");
     return rc;
 
 Error:
-    printf("Case testCaesarCipher() failed\n");
+    printf("Case testVigenereCipher() failed\n");
     return rc;
  
 }
@@ -135,7 +118,7 @@ Error:
 
 int main(void) {
     int result = 0;
-    result += testCaesarCipher();
+    result += testVigenereCipher();
 
     return result;
 }
