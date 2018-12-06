@@ -1,17 +1,24 @@
 /* Copyright (c) 2018, wenzhi wang */
 
-/* standard libs */
+/* 
+ * The Vigenère cipher is a method of encrypting alphabetic text by using a
+ * series of interwoven Caesar ciphers, based on the letters of a keyword.
+ *
+ * For more introductions, please refer to:
+ * https://en.wikipedia.org/wiki/Vigen%C3%A8re_cipher
+ */
+
 #include <stdio.h>
 #include <ctype.h>
 
-/* cryptoUtil headers */
 #include "vigenere.h"
 #include "utils.h"
 
 
+/* Check and return if the key for Vigenere Cipher is valid */
 bool
-Vigenere_ValidKey(const char *key,
-                  uint8 keyLen)
+Vigenere_ValidKey(const char *key, // IN
+                  uint8 keyLen)    // IN
 {
     if (key == NULL || keyLen == 0) {
         return false;
@@ -28,6 +35,7 @@ Vigenere_ValidKey(const char *key,
 }
 
 
+/* Vigenere encryption */
 CryptoUtil_ErrorCode
 Vigenere_Encrypt(const char *pt,  // In
                  uint64 ptLen,    // In
@@ -57,7 +65,8 @@ Vigenere_Encrypt(const char *pt,  // In
     return CryptoUtil_Error_Success;
 }
 
-                                    
+
+/* Vigenere decryption */
 CryptoUtil_ErrorCode
 Vigenere_Decrypt(const char *ct,   // In
                  uint64 ctLen,     // In

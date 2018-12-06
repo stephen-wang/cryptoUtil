@@ -1,6 +1,7 @@
 CC=gcc
 CFLAGS= -Wall -g
 MAKE=make
+MKDIR=mkdir
 RM=rm
 CRYPTOUTIL_DIR=$(shell pwd)
 export

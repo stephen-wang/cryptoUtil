@@ -1,20 +1,32 @@
 /* Copyright (c) 2018, wenzhi wang */
 
-/* standard libs */
+/* The Caesar cipher, also known as Caesar's cipher, the shift cipher, Caesar's
+   code or Caesar shift, is one of the simplest and most widely known encryption
+   techniques. It is a type of substitution cipher in which each letter in the
+   plaintext is replaced by a letter some fixed number of positions down the
+   alphabet. 
+
+   For more introductions, refere to https://en.wikipedia.org/wiki/Caesar_cipher
+ */
+
+
 #include "stdio.h"
 #include "string.h"
 
-/* cryptoUtil headers */
 #include "caesar.h"
 #include "utils.h"
 
 
-/*
- * Encrypt plaintext by right shifting each English character 'key' positions.
- */
 
+/*
+ * Encrypt plaintext by right shifting each alphabetic character 'key' places.
+ */
 CryptoUtil_ErrorCode
-Caesar_Encrypt(const char *pt, uint64 ptLen, uint8 key, char *ct, uint64 ctLen)
+Caesar_Encrypt(const char *pt, // IN
+               uint64 ptLen,   // IN
+               uint8 key,      // IN
+               char *ct,       // IN
+               uint64 ctLen)   // IN
 {
     if (pt == NULL || ct == NULL || ptLen <=0 || ptLen != ctLen) {
         return CryptoUtil_Error_InvalidParam;
@@ -29,11 +41,14 @@ Caesar_Encrypt(const char *pt, uint64 ptLen, uint8 key, char *ct, uint64 ctLen)
 
 
 /*
- *  Decrypt ciphertext by left shifting each English character 'key' positions.
+ *  Decrypt ciphertext by left shifting each alphabetic character 'key' places.
  */
-
 CryptoUtil_ErrorCode
-Caesar_Decrypt(const char *ct, uint64 ctLen, uint8 key, char *pt, uint64 ptLen)
+Caesar_Decrypt(const char *ct, // IN
+               uint64 ctLen,   // IN
+               uint8 key,      // IN
+               char *pt,       // OUT
+               uint64 ptLen)   // IN
 {
     if (pt == NULL || ct == NULL || ptLen <=0 || ptLen != ctLen) {
         return CryptoUtil_Error_InvalidParam;

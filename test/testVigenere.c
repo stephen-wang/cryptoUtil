@@ -116,7 +116,8 @@ Error:
 }
 
 
-int main(void) {
+int main(void)
+{
     int result = 0;
     result += testVigenereCipher();
 

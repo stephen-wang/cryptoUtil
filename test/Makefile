@@ -4,25 +4,27 @@ CRYPTOUTIL_DIR?=$(shell pwd)/..
 LD_LIBRARY_PATH=${CRYPTOUTIL_DIR}/build
 export LD_LIBRARY_PATH
 RM?=rm
+MKDIR?=mkdir
 
 .PHONY: all clean runTest
 all: testUtils testCaesar testVigenere runTest
 
-testUtils: testUtils.c ${CRYPTOUTIL_DIR}/src/utils.c
-	${CC} ${CFLAGS} -I${CRYPTOUTIL_DIR}/inc $^ -o $@
+testUtils: testUtils.c
+	${CC} ${CFLAGS} -I${CRYPTOUTIL_DIR}/inc $< -L${CRYPTOUTIL_DIR}/build -lcryptoUtil -o build/$@
 
 testCaesar: testCaesar.c
-	${CC} ${CFLAGS} -I${CRYPTOUTIL_DIR}/inc $< -L${CRYPTOUTIL_DIR}/build -lcryptoUtil -o $@
+	${CC} ${CFLAGS} -I${CRYPTOUTIL_DIR}/inc $< -L${CRYPTOUTIL_DIR}/build -lcryptoUtil -o build/$@
 
 testVigenere: testVigenere.c
-	${CC} ${CFLAGS} -I${CRYPTOUTIL_DIR}/inc $< -L${CRYPTOUTIL_DIR}/build -lcryptoUtil -o $@
+	${CC} ${CFLAGS} -I${CRYPTOUTIL_DIR}/inc $< -L${CRYPTOUTIL_DIR}/build -lcryptoUtil -o build/$@
 
 clean:
-	${RM} -f *.o testUtils testCaesar testVigenere
+	${RM} -rf *.o build/
+	${MKDIR} build 
 
 runTest: testCaesar
 	@echo  "\n*** Run tests ***"
-	@./testUtils
-	@./testCaesar
-	@./testVigenere
+	@build/testUtils
+	@build/testCaesar
+	@build/testVigenere
 	@echo  "*** All tests passed ***\n"

@@ -14,7 +14,6 @@ enum CryptoUtil_ErrorCode {
 #undef def
 };
 
-
 #define def(code, desc, val) desc
 #define Err_Strs ((char *[]) {CryptoUtil_Error_Defs})
 

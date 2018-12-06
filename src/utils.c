@@ -3,8 +3,8 @@
 #include <ctype.h>
 
 /*
- *  Shift an alphabet ch by abs(steps) positions. If steps > 0, right shift;
- *  left shift, otherwise, e.g.
+ *  Shift an alphabet character 'ch' by 'abs(steps)' places. If steps > 0, do
+ *  right shift; left shift, otherwise, E.g.
  *      ch='a', steps=1, return 'b'
  *      ch='b', steps=2, return 'd'
  *      ch='Y', steps=3, return 'B'
@@ -12,7 +12,7 @@
  *      ch='A', steps=-2, return 'Y'
  *      ch='2', steps=-2, return '2'
  *
- *  Note: it's no-op if ch is non English charcter. 
+ *  Note: This is a no-op if 'ch' is non English charcter. 
  */
 
 char
@@ -22,7 +22,9 @@ ShiftAlpha(char ch, int steps)
     char base = 0;
 
     //printf("%s shift <%c> %d positions\n", (steps > 0 ? "Right" : "Left"), ch, steps);
-    if (islower(ch)) {
+    if (!isalpha(ch)) {
+        return ch;
+    } else if (islower(ch)) {
         base = 'a';
     } else if (isupper(ch)) {
         base = 'A';
