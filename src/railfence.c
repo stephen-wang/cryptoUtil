@@ -63,6 +63,11 @@ Railfence_Encrypt(const char *pt,  // In
         || ptLen == 0 || ctLen != ptLen) {
         return CryptoUtil_Error_InvalidParam;
     }
+
+    if (key == 1) {
+       memcpy(ct, pt, ptLen);
+       return CryptoUtil_Error_Success;
+    }
    
     int i=0;
     int rail=0;
@@ -100,7 +105,6 @@ Railfence_Encrypt(const char *pt,  // In
         i--;
     }
    
-
     /*
      * Compute ciphertext of different rails in parallel.
      */

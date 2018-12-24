@@ -7,7 +7,7 @@ RM?=rm
 MKDIR?=mkdir
 
 .PHONY: all clean runTest
-all: testUtils testCaesar testVigenere testRailfence runTest
+all: clean testUtils testCaesar testVigenere testRailfence runTest
 
 testUtils: testUtils.c
 	${CC} ${CFLAGS} -I${CRYPTOUTIL_DIR}/inc $< -L${CRYPTOUTIL_DIR}/build -lcryptoUtil -o build/$@

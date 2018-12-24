@@ -42,6 +42,26 @@ testRailfenceCipher()
     /* case 1 */
     pt = "meetmelater";
     len = strlen(pt);
+    expCt = "meetmelater";
+    key = 1; 
+    if ((rc=testEncryption(pt, len, key, expCt)) != CryptoUtil_Error_Success) {
+       rc = 1;
+       goto Error;   
+    }
+
+    /* case 2 */
+    pt = "meetmelater";
+    len = strlen(pt);
+    expCt = "memltreteae";
+    key = 2; 
+    if ((rc=testEncryption(pt, len, key, expCt)) != CryptoUtil_Error_Success) {
+       rc = 1;
+       goto Error;   
+    }
+
+    /* case 3 */
+    pt = "meetmelater";
+    len = strlen(pt);
     expCt = "mmteteaeelr";
     key = 3; 
     if ((rc=testEncryption(pt, len, key, expCt)) != CryptoUtil_Error_Success) {
@@ -50,6 +70,7 @@ testRailfenceCipher()
     }
 
     printf("Case testRaifenceCipher passed\n\n");
+    return rc;
 
 Error:
     printf("Case testRailfenceCipher() failed\n\n");

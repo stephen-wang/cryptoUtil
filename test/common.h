@@ -1,4 +1,3 @@
-
 /* Copyright (c) 2018, wenzhi wang */
 
 #ifndef _COMMON_H_
