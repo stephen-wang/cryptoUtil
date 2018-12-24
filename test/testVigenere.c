@@ -25,10 +25,10 @@ testEncryption(const char *pt, int ptLen, char *key, const char *expCt)
     CryptoUtil_ErrorCode rc=0;
     char buf[256];
 
-    printf("  TestEncryption: PT <%s>, Key <%s>\n", pt, key);
     rc = Vigenere_Encrypt(pt, ptLen, key, strlen(key), buf, ptLen);
     if (rc != CryptoUtil_Error_Success) {
-        printf("  **Error** Encryption: %d (%s)\n", rc, CryptoUtil_ErrorDesc(rc));
+        printf("  **Error** Encryption: PT <%s>, Key <%s>, %d (%s)\n", pt, key,
+               rc, CryptoUtil_ErrorDesc(rc));
         return rc;
     }
 
@@ -45,10 +45,10 @@ testDecryption(const char *ct, int ctLen, char *key, const char *expPt)
     CryptoUtil_ErrorCode rc=0;
     char buf[256];
 
-    printf("  TestDecryption: CT <%s>, Key <%s>\n", ct, key);
     rc = Vigenere_Decrypt(ct, ctLen, key, strlen(key), buf, ctLen);
     if (rc != CryptoUtil_Error_Success) {
-        printf("  **Error** Decryption: %d (%s)\n", rc, CryptoUtil_ErrorDesc(rc));
+        printf("  **Error** Decryption: CT <%s>, key <%s>, %d (%s)\n", ct, key,
+               rc, CryptoUtil_ErrorDesc(rc));
         return rc;
     }
 
@@ -69,7 +69,7 @@ testVigenereCipher()
     int len;
     CryptoUtil_ErrorCode rc;
 
-    printf("Case testVigenereCipher Starts\n");
+    printf("Case testVigenereCipher started\n");
     /*
      * Case 1: Encrypt/Decrypt text only containing lower alphatetic characters.
      */
@@ -106,11 +106,11 @@ testVigenereCipher()
        goto Error;   
     }
 
-    printf("Case testVigenereCipher passed\n");
+    printf("Case testVigenereCipher passed\n\n");
     return rc;
 
 Error:
-    printf("Case testVigenereCipher() failed\n");
+    printf("Case testVigenereCipher() failed\n\n");
     return rc;
  
 }

@@ -25,10 +25,10 @@ testEncryption(const char *pt, int ptLen, int key, const char *expCt)
     CryptoUtil_ErrorCode rc=0;
     char buf[256];
 
-    printf("  TestEncryption: PT <%s>, Key <%d>\n", pt, key);
     rc = Caesar_Encrypt(pt, ptLen, key, buf, ptLen);
     if (rc != CryptoUtil_Error_Success) {
-        printf("  **Error** Encryption: %d (%s)\n", rc, CryptoUtil_ErrorDesc(rc));
+        printf("  **Error** PT <%s>, key <%d>, Encryption: %d (%s)\n", pt, key,
+               rc, CryptoUtil_ErrorDesc(rc));
         return rc;
     }
 
@@ -45,10 +45,10 @@ testDecryption(const char *ct, int ctLen, int key, const char *expPt)
     CryptoUtil_ErrorCode rc=0;
     char buf[256];
 
-    printf("  TestDecryption: CT <%s>, Key <%d>\n", ct, key);
     rc = Caesar_Decrypt(ct, ctLen, key, buf, ctLen);
     if (rc != CryptoUtil_Error_Success) {
-        printf("  **Error** Decryption: %d (%s)\n", rc, CryptoUtil_ErrorDesc(rc));
+        printf("  **Error** Decryption: CT <%s>, Key <%d>, %d (%s)\n", ct, key,
+               rc, CryptoUtil_ErrorDesc(rc));
         return rc;
     }
 
@@ -69,6 +69,7 @@ testCaesarCipher()
     int key;
     CryptoUtil_ErrorCode rc;
 
+    printf("Case testCaesarCipher() started\n");
     /*
      * Case 1: Encrypt/Decrypt text only containing lower alphatetic characters.
      */
@@ -123,11 +124,11 @@ testCaesarCipher()
        goto Error;   
     }
 
-    printf("Case testCaesarCipher() passed\n");
+    printf("Case testCaesarCipher() passed\n\n");
     return rc;
 
 Error:
-    printf("Case testCaesarCipher() failed\n");
+    printf("Case testCaesarCipher() failed\n\n");
     return rc;
  
 }

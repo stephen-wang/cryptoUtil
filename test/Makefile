@@ -7,7 +7,7 @@ RM?=rm
 MKDIR?=mkdir
 
 .PHONY: all clean runTest
-all: testUtils testCaesar testVigenere runTest
+all: testUtils testCaesar testVigenere testRailfence runTest
 
 testUtils: testUtils.c
 	${CC} ${CFLAGS} -I${CRYPTOUTIL_DIR}/inc $< -L${CRYPTOUTIL_DIR}/build -lcryptoUtil -o build/$@
@@ -18,6 +18,9 @@ testCaesar: testCaesar.c
 testVigenere: testVigenere.c
 	${CC} ${CFLAGS} -I${CRYPTOUTIL_DIR}/inc $< -L${CRYPTOUTIL_DIR}/build -lcryptoUtil -o build/$@
 
+testRailfence: testRailfence.c common.c
+	${CC} ${CFLAGS} -I${CRYPTOUTIL_DIR}/inc $^ -L${CRYPTOUTIL_DIR}/build -lcryptoUtil -o build/$@
+
 clean:
 	${RM} -rf *.o build/
 	${MKDIR} build 
@@ -27,4 +30,5 @@ runTest: testCaesar
 	@build/testUtils
 	@build/testCaesar
 	@build/testVigenere
+	@build/testRailfence
 	@echo  "*** All tests passed ***\n"

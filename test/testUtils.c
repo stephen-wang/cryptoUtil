@@ -17,6 +17,7 @@ typedef struct {
 int
 testShiftAlpha()
 {
+    printf("Case testShiftAlpha() started\n");
     ShiftVec testVectors[5] = { {'a', 'b', 1},
                                 {'b', 'd', 2},
                                 {'Y', 'B', 3},
@@ -28,11 +29,12 @@ testShiftAlpha()
         char actCh = ShiftAlpha(vec.oriCh, vec.shift);
         if (actCh != vec.expCh) {
             printf("**Error** CaesarShift(%c, %d), expect %c, actual %c\n", vec.oriCh, vec.shift, vec.expCh, actCh);
-             return -1;
+            printf("Case testShiftAlpha() failed\n\n");
+            return 1;
         }
     }
 
-    printf("Case testShiftAlpha() passed\n");
+    printf("Case testShiftAlpha() passed\n\n");
     return 0;
 }
 
