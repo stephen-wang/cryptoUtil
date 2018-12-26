@@ -3,10 +3,11 @@
 
 typedef enum CryptoUtil_ErrorCode CryptoUtil_ErrorCode;
 
-#define CryptoUtil_Error_Defs \
-   def(CryptoUtil_Error_Success, "Success", 0) ,\
-   def(CryptoUtil_Error_InvalidParam, "Invalid Parameter", 1) ,\
-   def(CryptoUtil_Error_Failure, "Unknown failure", 2)
+#define CryptoUtil_Error_Defs                                  \
+   def(CryptoUtil_Error_Success, "Success", 0) ,               \
+   def(CryptoUtil_Error_InvalidParam, "Invalid Parameter", 1), \
+   def(CryptoUtil_Error_OutOfMem, "Out of Memory", 2),         \
+   def(CryptoUtil_Error_Failure, "Unknown failure", 3)
 
 enum CryptoUtil_ErrorCode {
 #define def(code, desc, val) code = val

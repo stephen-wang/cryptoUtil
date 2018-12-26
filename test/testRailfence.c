@@ -8,7 +8,7 @@
 #include "railfence.h"
 
 
-CryptoUtil_ErrorCode
+static CryptoUtil_ErrorCode
 testEncryption(const char *pt, int ptLen, int key, const char *expCt)
 {
     CryptoUtil_ErrorCode rc=0;
@@ -24,6 +24,31 @@ testEncryption(const char *pt, int ptLen, int key, const char *expCt)
     buf[ptLen] = '\0';
     rc = CompareStr(buf, expCt, ptLen);
 
+    return rc;
+}
+
+
+static CryptoUtil_ErrorCode
+testDecryption(const char *ct, int ctLen, int key, const char *expPt)
+{
+    CryptoUtil_ErrorCode rc=0;
+    char buf[256];
+
+    rc = Railfence_Decrypt(ct, ctLen, key, buf, ctLen);
+    if (rc != CryptoUtil_Error_Success) {
+        goto ErrorOut;
+    }
+
+    buf[ctLen] = '\0';
+    rc = CompareStr(buf, expPt, ctLen);
+    if (rc != CryptoUtil_Error_Success) {
+        goto ErrorOut;
+    }
+    return rc;
+
+ErrorOut:
+    printf("  **Error** Decryption: CT <%s>, Key <%d>, %d (%s)\n", ct, key,
+            rc, CryptoUtil_ErrorDesc(rc));
     return rc;
 }
 
@@ -49,6 +74,12 @@ testRailfenceCipher()
        goto Error;   
     }
 
+    if ((rc=testDecryption(expCt, len, key, pt)) != CryptoUtil_Error_Success) {
+       rc = 1;
+       goto Error;   
+    }
+
+
     /* case 2 */
     pt = "meetmelater";
     len = strlen(pt);
@@ -59,12 +90,22 @@ testRailfenceCipher()
        goto Error;   
     }
 
+    if ((rc=testDecryption(expCt, len, key, pt)) != CryptoUtil_Error_Success) {
+       rc = 1;
+       goto Error;   
+    }
+
     /* case 3 */
     pt = "meetmelater";
     len = strlen(pt);
     expCt = "mmteteaeelr";
     key = 3; 
     if ((rc=testEncryption(pt, len, key, expCt)) != CryptoUtil_Error_Success) {
+       rc = 1;
+       goto Error;   
+    }
+
+    if ((rc=testDecryption(expCt, len, key, pt)) != CryptoUtil_Error_Success) {
        rc = 1;
        goto Error;   
     }

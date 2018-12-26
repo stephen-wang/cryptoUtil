@@ -12,6 +12,7 @@
 
 #include <assert.h>
 #include <stdio.h>   // for printf
+#include <stdlib.h>
 #include <string.h>
 
 #include "railfence.h"
@@ -51,6 +52,59 @@ RailfenceGetNextRail(int preRail,        // IN
 }
 
 
+/* Given length of plain/cipher text 'inputLen' and number of rails 'rails',
+   get the number of data in each rail. */
+static CryptoUtil_ErrorCode
+RailfenceGetNumberOfRails(uint64 inputLen,    // IN
+                          uint64 *numOfRails, // OUT
+                          uint64 rails)       // IN
+{
+    if (numOfRails == NULL || rails > inputLen) {
+        return CryptoUtil_Error_InvalidParam;
+    }
+
+    int rail;
+    int preRail=-1;
+    Move_Direction md=DOWN;
+
+    memset(numOfRails, 0, rails * sizeof(uint64));
+    for (uint64 i=0; i<inputLen; i++) {
+        rail = RailfenceGetNextRail(preRail, rails, &md);
+        assert(rail>=0 && rail<rails);
+        numOfRails[rail]++;
+        preRail = rail;
+    }
+
+    return CryptoUtil_Error_Success;
+}
+
+
+/* Given the length of plain/cipher text 'inputLen' and number of data in each
+   rail 'numOfRails', get the position of the first data of each rail in
+   ciphertext.
+
+   Note: numOfRails and railsBasePos may share same memory address.
+*/
+static CryptoUtil_ErrorCode
+RailfenceGetRailBasePosInCt(uint64 inputLen,          // IN
+                            const uint64 *numOfRails, // IN
+                            uint64 rails,             // IN
+                            uint64 *railBasePos)      // OUT
+{
+    if (numOfRails == NULL || railBasePos == NULL || rails > inputLen) {
+        return CryptoUtil_Error_InvalidParam;
+    }
+
+    int i = rails-1;
+    railBasePos[i] = inputLen - numOfRails[i];
+    while (--i >= 0) {
+        railBasePos[i] = railBasePos[i+1] - numOfRails[i];
+    }
+   
+    return CryptoUtil_Error_Success; 
+}
+
+
 /* Encryption */
 CryptoUtil_ErrorCode
 Railfence_Encrypt(const char *pt,  // In
@@ -60,7 +114,7 @@ Railfence_Encrypt(const char *pt,  // In
                   uint64 ctLen)    // In
 {
     if (pt == NULL || ct == NULL \
-        || ptLen == 0 || ctLen != ptLen) {
+        || ptLen == 0 || ctLen != ptLen || key >= ptLen) {
         return CryptoUtil_Error_InvalidParam;
     }
 
@@ -72,55 +126,127 @@ Railfence_Encrypt(const char *pt,  // In
     int i=0;
     int rail=0;
     int preRail=-1;
-    int rails=key; 
+    uint64 rails=key; 
     Move_Direction md=DOWN;
-    int base_rails[rails];
-    int pos_rails[rails];
+    uint64 *baseOfRails;
+    uint64 *posOfRails;
+    CryptoUtil_ErrorCode rc;
 
     /*
-     * Compute start position of each rail's 1st element in ciphertext:
-     *   firstly, get the number of elements of each rail; secondly, compute
-     *   the start position of each rail based on the number of elements of
-     *   each rail.
-     *   
+     * Compute the number of data in each rail.
      */
-    memset(base_rails, 0, sizeof(base_rails));
-    for (i=0; i<ptLen; i++) {
-        rail = RailfenceGetNextRail(preRail, rails, &md);
-        assert(rail>=0 && rail<rails);
-        base_rails[rail]++;
-        preRail = rail;
+    baseOfRails = malloc(rails * sizeof(uint64)); 
+    if (baseOfRails == NULL) {
+        return CryptoUtil_Error_OutOfMem;
     }
 
-    i = rails-1;
-    /* printf("DEBUG num_rails[%d]=%d ", i, base_rails[i]); */
-    base_rails[i] = ptLen - base_rails[i];
-    /* printf("DEBUG base_rails[%d]=%d\n", i, base_rails[i]); */
-    i--;
-    while (i >= 0) {
-        /* printf("DEBUG base_rails[%d]=%d, num_rails[%d]=%d ", i+1,
-           base_rails[i+1], i, base_rails[i]); */
-        base_rails[i] = base_rails[i+1] - base_rails[i];
-        /* printf(" base_rails[%d]=%d\n", i, base_rails[i]); */
-        i--;
-    }
+    rc = RailfenceGetNumberOfRails(ptLen, baseOfRails, key);
+    assert(rc == CryptoUtil_Error_Success);
+
+    /*
+     * Compute position of each rail's 1st data in ciphertext.
+     */
+    rc = RailfenceGetRailBasePosInCt(ptLen, baseOfRails, key, baseOfRails);
+    assert(rc == CryptoUtil_Error_Success);
    
     /*
      * Compute ciphertext of different rails in parallel.
      */
     preRail = -1;
     md = DOWN;
-    memset(pos_rails, 0, sizeof(pos_rails)); 
+
+    posOfRails = malloc(sizeof(uint64) * rails);
+    if (posOfRails == NULL) { 
+        return CryptoUtil_Error_OutOfMem;
+    }
+    memset(posOfRails, 0, sizeof(uint64) * key);
+
     for (i=0; i<ptLen; i++) {
         rail = RailfenceGetNextRail(preRail, rails, &md);        
-        int ctPos = base_rails[rail] + pos_rails[rail];
+        int ctPos = baseOfRails[rail] + posOfRails[rail];
         ct[ctPos] = pt[i];
-        /*printf("DEBUG PT[%d]=%c, rail=%d, base_rail_pos=%d, rail_pos=%d, ctPos=%d\n", i,
-               pt[i], rail, base_rails[rail], pos_rails[rail], ctPos);
-        */
-        pos_rails[rail]++;
+        posOfRails[rail]++;
         preRail = rail;
     }
+
+    free(posOfRails);
+    free(baseOfRails);
+
+    return CryptoUtil_Error_Success;
+}
+
+
+/* Decryption */
+CryptoUtil_ErrorCode
+Railfence_Decrypt(const char *ct,  // In
+                  uint64 ctLen,    // In
+                  uint64 key,      // In
+                  char *pt,        // Out
+                  uint64 ptLen)    // In
+{
+    if (pt == NULL || ct == NULL \
+        || ptLen == 0 || ctLen != ptLen) {
+        return CryptoUtil_Error_InvalidParam;
+    }
+
+    if (key == 1) {
+       memcpy(pt, ct, ctLen);
+       return CryptoUtil_Error_Success;
+    }
+
+
+    /*
+     * Compute the number of elements for each rail.
+     */
+    CryptoUtil_ErrorCode rc;
+    uint64 *baseOfRails;
+
+    baseOfRails = malloc(key * sizeof(uint64));
+    if (baseOfRails == NULL) {
+        return CryptoUtil_Error_OutOfMem;
+    }
+
+    rc = RailfenceGetNumberOfRails(ptLen, baseOfRails, key);
+    assert(rc == CryptoUtil_Error_Success);
+
+    /*
+     * Compute position of each rail's 1st data in ciphertext.
+     */
+    rc = RailfenceGetRailBasePosInCt(ptLen, baseOfRails, key, baseOfRails);
+    assert(rc == CryptoUtil_Error_Success);
+
+
+    /*
+     * Decrypt the ciphertext.
+     */
+    uint64 ptPos = 0;
+    uint64 rails = key;
+    int rail;
+    int preRail = -1;
+    uint64 *posOfRails;
+    Move_Direction md=DOWN;
+    uint64 ctPos;
+
+    posOfRails = malloc(sizeof(uint64) * rails);
+    if (posOfRails == NULL) { 
+        return CryptoUtil_Error_OutOfMem;
+    }
+
+    memset(posOfRails, 0, sizeof(uint64) * rails);
+    while(ptPos < ptLen) {
+        rail = RailfenceGetNextRail(preRail, rails, &md);
+        assert(rail < rails);
+        preRail = rail;
+
+        ctPos = baseOfRails[rail] + posOfRails[rail];
+        assert(ctPos < ctLen);
+
+        pt[ptPos++] = ct[ctPos];
+        posOfRails[rail]++;
+    }
+
+    free(posOfRails);
+    free(baseOfRails);
 
     return CryptoUtil_Error_Success;
 }
