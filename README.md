@@ -1,3 +1,3 @@
 # cryptoUtil
-#     Currently, caesar/vigenere/railence cipher are supported.
+#     Currently, caesar/vigenere/railfence cipher are supported.
 #
